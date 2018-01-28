@@ -4,8 +4,13 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 
+import { HttpModule } from '@angular/http';
+import { SQLite } from '@ionic-native/sqlite';
+import { SQLitePorter } from '@ionic-native/sqlite-porter';
+
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { BaseDatosLocalProvider } from '../providers/base-datos-local/base-datos-local';
 
 @NgModule({
   declarations: [
@@ -14,6 +19,7 @@ import { HomePage } from '../pages/home/home';
   ],
   imports: [
     BrowserModule,
+    HttpModule,
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
@@ -24,7 +30,10 @@ import { HomePage } from '../pages/home/home';
   providers: [
     StatusBar,
     SplashScreen,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    SQLite,
+    SQLitePorter,
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    BaseDatosLocalProvider
   ]
 })
 export class AppModule {}
