@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController } from 'ionic-angular';
+import { NavController } from 'ionic-angular';
 
 import { BaseDatosLocalProvider } from './../../providers/base-datos-local/base-datos-local';
 
@@ -9,18 +9,19 @@ import { BaseDatosLocalProvider } from './../../providers/base-datos-local/base-
 })
 export class HomePage {
 
-  datos: any = [];
-  
+  datos: any = [];  
 
-  constructor(public navCtrl: NavController,  
-        private baseDatosLocalProvider: BaseDatosLocalProvider,
-        private alertCtrl: AlertController) {
-    this.baseDatosLocalProvider.getDatabaseState().subscribe(rdy => {
-      if (rdy) {
-        this.datos = this.baseDatosLocalProvider.datos;
-      }
-    })
-
+  constructor(public navCtrl: NavController, private baseDatosLocalProvider: BaseDatosLocalProvider) {
+    // Suscripción para detectar cuándo la BD ha terminado de cargar datos 
+    let suscripcionBDPreparada = baseDatosLocalProvider.getDatabaseState()
+      .subscribe(baseDatosPreparada => {
+        if (baseDatosPreparada) {
+          // Mantener una referencia a los datos como una propiedad de esta clase
+          this.datos = baseDatosLocalProvider.datos;
+          // Terminar la suscripción
+          suscripcionBDPreparada.unsubscribe();
+        }
+      });
   }
 
 }

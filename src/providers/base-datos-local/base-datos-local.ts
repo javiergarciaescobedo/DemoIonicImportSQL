@@ -11,13 +11,15 @@ import { BehaviorSubject } from 'rxjs/Rx';
 
 @Injectable()
 export class BaseDatosLocalProvider {
-  
+  // Array donde se almacenará la información contenida en la BD
   datos: any = [];
+  // Variable que se usará con subscribe para detectar BD preparada 
   private databaseReady: BehaviorSubject<boolean>;
 
   constructor(public http: Http, private platform: Platform, 
         private sqlite: SQLite, private sqliteporter: SQLitePorter, 
         private alertCtrl: AlertController) {
+    // Inicialmente se indica que la BD no está aún proeparada
     this.databaseReady = new BehaviorSubject(false);
     this.abrirBaseDatos();
   }
@@ -43,6 +45,7 @@ export class BaseDatosLocalProvider {
                 }).present();
                 // Procesar los datos de la base de datos
                 this.datos = this.obtenerDatos(db);
+                // Informar que la base de datos está lista
                 this.databaseReady.next(true);
               }) 
               .catch(res => {
@@ -61,8 +64,12 @@ export class BaseDatosLocalProvider {
                       .then(() => {
                         // Procesar los datos de la base de datos
                         this.datos = this.obtenerDatos(db);
+                        // Informar que la base de datos está lista
                         this.databaseReady.next(true);
-                      }).catch(e => alert("Error al importar la base de datos"));
+                      }).catch(e => {
+                        alert("Error al importar la base de datos");
+                        console.error("Error al importar la base de datos", e.message);
+                      });
                   })
               });
           });
@@ -71,9 +78,12 @@ export class BaseDatosLocalProvider {
 
   obtenerDatos(baseDatos) {
     let resultado = [];
+    // Realizar la consulta a la BD para extraer los datos
     baseDatos.executeSql('SELECT * FROM tableItems', [])
       .then(resSelect => {
+        // Recorrer todas las filas obtenidas
         for (var i = 0; i < resSelect.rows.length; i++) { 
+          // Añadir al array de datos la información desglosada
           resultado.push({ 
             unTextoCorto: resSelect.rows.item(i).unTextoCorto, 
             unTextoLargo: resSelect.rows.item(i).unTextoLargo 
@@ -81,13 +91,19 @@ export class BaseDatosLocalProvider {
         } 
       }).catch(e => {
         alert("Error: No se ha podido consultar los datos",);
-        console.error("Error en Select", e.message);
+        console.error("Error en Select de consulta de datos", e.message);
       });
     return resultado;
   }
 
+  /*
+  * Método para obtener el Observable que se utilizará con susbcribe
+  * para detectar cuándo está lista la base de datos
+  */
   getDatabaseState() {
     return this.databaseReady.asObservable();
   }
+
+
 
 }
